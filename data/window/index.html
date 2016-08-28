@@ -1,0 +1,99 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+    <title>Bulk Media Downloader (active)</title>
+    <link rel="stylesheet" href="index.css">
+  </head>
+  <body data-active=true>
+    <div id="head">
+      <ul>
+        <li>Refresh the active tab or a tab that you want to grab media resources (image, audio or video) from.</li>
+        <li>If there is a video source in the tab, it needs to be streamed for the media source to be grabbed.</li>
+        <li>When the intended resource is grabbed, make sure to press "Pause" button to release network observer and prevent cluttering of this window with new resources.</li>
+        <li os=chrome>Detection of YouTube resources is locked because of restrictions of the Chrome Store.</li>
+      </ul>
+      <div>
+        <img alt="" src="working.gif">
+        <div id="stats">0/0</div>
+      </div>
+    </div>
+    <div >
+      <p></p>
+      <p></p>
+    </div>
+    <div style="display: none;">
+      <table id="tr">
+        <tbody>
+          <tr>
+            <td><input type="checkbox"></td>
+            <td></td>
+            <td></td>
+            <td>-</td>
+            <td></td>
+            <td>-</td>
+            <td>-</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <div id="links-head">
+      <table>
+        <colgroup>
+          <col width="30">
+          <col width="90">
+          <col>
+          <col width="80">
+          <col width="140">
+          <col width="80">
+          <col width="120">
+        </colgroup>
+        <thead>
+          <th data-cmd="select-toggle">▾</th>
+          <th data-cmd="filter-toggle"><span>Type (all)</span> ▾</th>
+          <th>Link</th>
+          <th>Size</th>
+          <th>Timestamp</th>
+          <th>Filename</th>
+          <th>Source</th>
+        </thead>
+      </table>
+      <ul type="select">
+        <li data-cmd="select-all">Select All</li>
+        <li data-cmd="select-images">Select All Images</li>
+        <li data-cmd="select-videos">Select All Videos</li>
+        <li data-cmd="select-audios">Select All Audios</li>
+        <li data-cmd="select-none">Select None</li>
+      </ul>
+      <ul type="filter">
+        <li data-cmd="filter-all">Type (all)</li>
+        <li data-cmd="filter-medias">Type (media)</li>
+        <li data-cmd="filter-videos">Type (video)</li>
+        <li data-cmd="filter-audios">Type (audio)</li>
+        <li data-cmd="filter-images">Type (image)</li>
+      </ul>
+    </div>
+    <div id="links">
+      <table>
+        <colgroup>
+          <col width="30">
+          <col width="90">
+          <col>
+          <col width="80">
+          <col width="140">
+          <col width="80">
+          <col width="120">
+        </colgroup>
+        <tbody>
+        </tbody>
+      </table>
+    </div>
+    <div id="tools">
+      <input data-cmd="pause" type="button" value="Pause">
+      <input data-cmd="download-browser" type="button" disabled=true value="Download (browser)" title="Download with the biult-in download manager">
+      <input data-cmd="download-tdm" type="button" disabled=true value="Download (Turbo Download Manager)" title="Download with Turbo Download Manager">
+      <input data-cmd="clear" type="button" value="Clear List">
+    </div>
+    <script src="index.js"></script>
+  </body>
+</html>
