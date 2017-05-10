@@ -3,7 +3,7 @@
   "short_name": "ibmdownloader",
   "description": "Grab and download media (image and video) sources by monitoring network (like FlashGot)",
   "author": "InBasic",
-  "version": "0.1.0",
+  "version": "0.1.6",
   "manifest_version": 2,
   "permissions": [
     "storage",
@@ -11,7 +11,8 @@
     "<all_urls>",
     "webRequest",
     "downloads",
-    "management"
+    "management",
+    "notifications"
   ],
   "background": {
     "scripts": [
@@ -24,7 +25,7 @@
       "32": "data/icons/32.png"
     }
   },
-  "homepage_url": "http://add0n.com/media-downloader.html",
+  "homepage_url": "http://add0n.com/media-tools.html",
   "icons": {
     "16": "data/icons/16.png",
     "48": "data/icons/48.png",

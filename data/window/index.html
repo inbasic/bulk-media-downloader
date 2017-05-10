@@ -3,6 +3,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
     <title>Bulk Media Downloader (active)</title>
+    <link rel="stylesheet" href="fontello.css">
     <link rel="stylesheet" href="index.css">
   </head>
   <body data-active=true>
@@ -11,7 +12,7 @@
         <li>Refresh the active tab or a tab that you want to grab media resources (image, audio or video) from.</li>
         <li>If there is a video source in the tab, it needs to be streamed for the media source to be grabbed.</li>
         <li>When the intended resource is grabbed, make sure to press "Pause" button to release network observer and prevent cluttering of this window with new resources.</li>
-        <li os=chrome>Detection of YouTube resources is locked because of restrictions of the Chrome Store.</li>
+        <li>Detection of YouTube resources is locked because of restrictions of the Chrome Store.</li>
       </ul>
       <div>
         <img alt="" src="working.gif">
@@ -41,59 +42,79 @@
       <table>
         <colgroup>
           <col width="30">
-          <col width="90">
+          <col width="100">
+          <col width="100">
           <col>
+          <col width="100">
+          <col width="10%">
           <col width="80">
-          <col width="140">
-          <col width="80">
-          <col width="120">
         </colgroup>
         <thead>
-          <th data-cmd="select-toggle">▾</th>
-          <th data-cmd="filter-toggle"><span>Type (all)</span> ▾</th>
+          <th data-cmd="toggle-select">▾</th>
+          <th data-cmd="toggle-filter"><span>Type (all)</span> ▾</th>
+          <th data-cmd="toggle-size"><span>Size (all)</span> ▾</th>
           <th>Link</th>
-          <th>Size</th>
           <th>Timestamp</th>
           <th>Filename</th>
           <th>Source</th>
         </thead>
       </table>
       <ul type="select">
-        <li data-cmd="select-all">Select All</li>
-        <li data-cmd="select-images">Select All Images</li>
-        <li data-cmd="select-videos">Select All Videos</li>
-        <li data-cmd="select-audios">Select All Audios</li>
-        <li data-cmd="select-none">Select None</li>
+        <li data-cmd="select-all">Select all</li>
+        <li data-cmd="select-image">Select all images</li>
+        <li data-cmd="select-video">Select all videos</li>
+        <li data-cmd="select-audio">Select all audios</li>
+        <li data-cmd="select-application">Select all applications</li>
+        <li data-cmd="select-none">Select none</li>
       </ul>
       <ul type="filter">
         <li data-cmd="filter-all">Type (all)</li>
-        <li data-cmd="filter-medias">Type (media)</li>
-        <li data-cmd="filter-videos">Type (video)</li>
-        <li data-cmd="filter-audios">Type (audio)</li>
-        <li data-cmd="filter-images">Type (image)</li>
+        <li data-cmd="filter-media">Type (media)</li>
+        <li data-cmd="filter-video">Type (video)</li>
+        <li data-cmd="filter-audio">Type (audio)</li>
+        <li data-cmd="filter-image">Type (image)</li>
+        <li data-cmd="filter-application">Type (application)</li>
+      </ul>
+      <ul type="size">
+        <li data-cmd="size-all">Size (all)</li>
+        <li data-cmd="size-100k">Size (>100K)</li>
+        <li data-cmd="size-1m">Size (>1M)</li>
+        <li data-cmd="size-10m">Size (>10M)</li>
       </ul>
     </div>
     <div id="links">
       <table>
         <colgroup>
           <col width="30">
-          <col width="90">
+          <col width="100">
+          <col width="100">
           <col>
+          <col width="100">
+          <col width="10%">
           <col width="80">
-          <col width="140">
-          <col width="80">
-          <col width="120">
         </colgroup>
         <tbody>
         </tbody>
       </table>
     </div>
+    <div id="filters">
+      <label><input type="checkbox" value="all_files"><span class="icon-"></span> All files</label>
+      <label><input type="checkbox" value="applications"><span class="icon-"></span> Application</label>
+      <label><input type="checkbox" value="images"><span class="icon-"></span> Image</label>
+      <label><input type="checkbox" value="videos"><span class="icon-"></span> Video</label>
+      <label><input type="checkbox" value="audios"><span class="icon-"></span> Audio</label>
+      <label><input type="checkbox" value="archives"><span class="icon-"></span> Archive</label>
+      <label><input type="checkbox" value="documents"><span class="icon-"></span> Document</label>
+      <input type="text" placeholder="RegExp matching">
+    </div>
     <div id="tools">
       <input data-cmd="pause" type="button" value="Pause">
       <input data-cmd="download-browser" type="button" disabled=true value="Download (browser)" title="Download with the biult-in download manager">
       <input data-cmd="download-tdm" type="button" disabled=true value="Download (Turbo Download Manager)" title="Download with Turbo Download Manager">
+      <input data-cmd="copy-links" type="button" disabled=true value="Copy Links" title="Copy links of all selected items">
       <input data-cmd="clear" type="button" value="Clear List">
     </div>
+    <script src="elements.js"></script>
     <script src="index.js"></script>
   </body>
 </html>

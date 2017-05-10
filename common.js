@@ -1,16 +1,10 @@
 'use strict';
 
-var os = 'chrome';
-if (window.navigator.userAgent.indexOf('OPR') !== -1) {
-  os = 'opera';
-}
-if (window.navigator.userAgent.indexOf('Firefox') !== -1) {
-  os = 'firefox';
-}
+var os = navigator.userAgent.indexOf('Firefox') !== -1 ? 'firefox' : (
+  navigator.userAgent.indexOf('OPR') === -1 ? 'chrome' : 'opera'
+);
 
-var win = {
-  id: chrome.windows.WINDOW_ID_NONE
-};
+var win = {};
 
 var stats = {
   total: 0,
@@ -31,58 +25,35 @@ var config = {
   }
 };
 
+var position = function (prefs) { // jshint ignore:line
+  chrome.storage.local.set(prefs);
+};
+
 var monitor = {
-  _objs: [],
-  _num: 0,
-  process: (o) => {
-    if (o) {
-      monitor._objs.push(o);
-    }
-    if (monitor._num > 5) {
-      return;
-    }
-    let obj = monitor._objs.shift();
-    if (obj) {
-      monitor._num += 1;
-      let req = new XMLHttpRequest();
-      req.open('HEAD', obj.url, true);
-      req.onload = () => {
-        chrome.tabs.get(obj.tabId, (tab) => chrome.runtime.sendMessage({
-          cmd: 'extend',
-          id: obj.id,
-          title: obj.tabId + ' - ' + tab.title,
-          url: tab.url,
-          length: req.getResponseHeader('Content-Length'),
-          disposition: req.getResponseHeader('Content-Disposition')
-        }));
-        monitor._num -= 1;
-        monitor.process();
-      };
-      req.onerror = (e) => {
-        chrome.runtime.sendMessage({
-          cmd: 'error',
-          msg: e.message,
-          id: obj.id
-        });
-        monitor._num -= 1;
-        monitor.process();
-      };
-      req.send();
-    }
-  },
   observe: (d) => {
     if (d.tabId === -1) {
       return;
     }
     // prevent YouTube video link detection
-    if (os === 'chrome' && d.url.indexOf('googlevideo.') !== -1) {
+    if (d.url.indexOf('googlevideo.') !== -1) {
       return;
     }
     let type = d.responseHeaders.filter(o => o.name === 'content-type' || o.name === 'Content-Type');
+
     if (type.length) {
       stats.total += 1;
       type = type[0].value;
-      if (type.startsWith('image') || type.startsWith('video') || type.startsWith('audio')) {
+
+      const length = d.responseHeaders
+        .filter(o => o.name === 'content-length' || o.name === 'Content-Length')
+        .map(l => l.value).shift();
+
+      if (
+        type.startsWith('image') ||
+        type.startsWith('video') ||
+        type.startsWith('audio') ||
+        (type.startsWith('application') && type.indexOf('javascript') === -1)
+      ) {
         stats.media += 1;
         chrome.runtime.sendMessage({
           cmd: 'append',
@@ -92,13 +63,13 @@ var monitor = {
           tabId: d.tabId,
           timeStamp: d.timeStamp,
           methd: d.method,
+          length,
+          disposition: d.responseHeaders
+            .filter(o => o.name === 'content-disposition' || o.name === 'Content-Disposition')
+            .map(o => o.value)
+            .shift(),
           type,
           stats
-        });
-        monitor.process({
-          id: d.requestId,
-          tabId: d.tabId,
-          url: d.url
         });
       }
     }
@@ -117,34 +88,38 @@ var monitor = {
 };
 
 chrome.browserAction.onClicked.addListener(() => {
-  let screenWidth = screen.availWidth;
-  let screenHeight = screen.availHeight;
-  let width = 700;
-  let height = 500;
-
   function create () {
-    chrome.windows.create({
-      url: chrome.extension.getURL('data/window/index.html'),
-      width: width,
-      height: height,
-      left: Math.round((screenWidth-width) / 2),
-      top: Math.round((screenHeight-height) / 2),
-      type: 'popup'
-    }, w => win = w);
-    monitor.activate();
+    chrome.storage.local.get({
+      width: 700,
+      height: 500,
+      left: Math.round((screen.availWidth - 700) / 2),
+      top: Math.round((screen.availHeight - 500) / 2),
+    }, prefs => {
+      chrome.windows.create({
+        url: chrome.extension.getURL('data/window/index.html'),
+        width: prefs.width,
+        height: prefs.height,
+        left: prefs.left,
+        top: prefs.top,
+        type: 'popup'
+      }, w => {
+        win = w;
+        monitor.activate();
+      });
+    });
   }
-  if (win.id === chrome.windows.WINDOW_ID_NONE) {
-    create();
-  }
-  else {
+  if (win.id) {
     chrome.windows.get(win.id, w => {
-      if (w) {
-        chrome.windows.update(win.id, {focused: true});
-      }
-      else {
+      if (chrome.runtime.lastError || !w) {
         create();
       }
+      else {
+        chrome.windows.update(win.id, {focused: true});
+      }
     });
+  }
+  else {
+    create();
   }
 });
 
@@ -159,13 +134,26 @@ chrome.runtime.onMessage.addListener((message) => {
     let options = {
       url: message.url
     };
-    if (message.filename) {
-      options.filename = message.filename;
+    if (message.filename && message.filename !== '-') {
+      options.filename = message.filename
+        .replace(/[`~!@#$%^&*()_|+\-=?;:'",<>\{\}\[\]\\\/]/gi, '');
     }
-    chrome.downloads.download(options);
+
+    chrome.downloads.download(options, () => {
+      if (chrome.runtime.lastError) {
+        let a = document.createElement('a');
+        a.href = options.url;
+        a.setAttribute('download', options.filename || 'unknown_name');
+        a.dispatchEvent(new MouseEvent('click'));
+      }
+    });
   }
-  else if (message.cmd === 'download-tdm') {
-    let id = 'kemfccojgjoilhfmcblgimbggikekjip';
+  else if (message.cmd === 'download-tdm' && chrome.management) {
+    const id = ({
+      opera: 'lejgoophpfnabjcnfbphcndcjfpinbfk',
+      chrome: 'kemfccojgjoilhfmcblgimbggikekjip',
+      firefox: 'jid0-dsq67mf5kjjhiiju2dfb6kk8dfw@jetpack'
+    })[os];
     chrome.management.get(id,
       (result) => {
         if (result) {
@@ -193,14 +181,24 @@ chrome.runtime.onMessage.addListener((message) => {
     );
   }
 });
-// faqs
-chrome.storage.local.get('version', (obj) => {
+
+// FAQs & Feedback
+chrome.storage.local.get({
+  'version': null,
+  'faqs': navigator.userAgent.toLowerCase().indexOf('firefox') === -1 ? true : false
+}, prefs => {
   let version = chrome.runtime.getManifest().version;
-  if (obj.version !== version) {
+
+  if (prefs.version ? (prefs.faqs && prefs.version !== version) : true) {
     chrome.storage.local.set({version}, () => {
       chrome.tabs.create({
-        url: 'http://add0n.com/media-tools.html?from=flash&version=' + version + '&type=' + (obj.version ? ('upgrade&p=' + obj.version) : 'install')
+        url: 'http://add0n.com/media-tools.html?version=' + version +
+          '&type=' + (prefs.version ? ('upgrade&p=' + prefs.version) : 'install')
       });
     });
   }
 });
+(function () {
+  let {name, version} = chrome.runtime.getManifest();
+  chrome.runtime.setUninstallURL('http://add0n.com/feedback.html?name=' + name + '&version=' + version);
+})();
