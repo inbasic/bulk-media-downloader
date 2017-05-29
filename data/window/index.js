@@ -130,7 +130,7 @@ function isChecked (tr) {
 });
 
 function bytesToSize (bytes) {
-  if (bytes === 0) {
+  if (bytes === 0 || bytes === '0') {
     return '0 Byte';
   }
   let k = 1024;
@@ -185,6 +185,9 @@ document.addEventListener('click', (e) => {
         referrer: tr.dataset.referrer,
         filename: tr.dataset.filename
       }));
+    if (cmd === 'download-browser') {
+      notify(items.length + ' link' + (items.length > 1 ? 's are' : ' is') + ' being downloaded');
+    }
   }
   else if (cmd === 'copy-links') {
     const links = [...$.links.querySelectorAll(':checked')]
@@ -228,23 +231,29 @@ document.addEventListener('click', (e) => {
 
 function findTitle (message) {
   if (message.disposition) {
-    const tmp = /filename\=([^\;]*)/.exec(message.disposition);
-    if (tmp && tmp.length) {
-      return tmp[1].replace(/[\"\']$/, '').replace(/^[\"\']/, '');
-    }
-  }
-  else {
-    let name = message.url.split('/').pop().split('?').shift();
-    let extension = /\.([^\.]+)$/.exec(name);
-    if (extension && extension.length) {
-      extension = extension[1];
-      name = name.replace('.' + extension, '');
+    if (message.disposition.indexOf('inline') !== -1) {
+      const matches = /filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/.exec(message.disposition);
+      if (matches && matches.length) {
+        return matches[1].replace(/['"]/g, '');
+      }
     }
     else {
-      extension = message.type.split('/').pop().split('+').shift().split(';').shift();
+      const matches = /filename\=([^\;]*)/.exec(message.disposition);
+      if (matches && matches.length) {
+        return matches[1].replace(/[\"\']$/, '').replace(/^[\"\']/, '');
+      }
     }
-    return name + '.' + extension;
   }
+  let name = message.url.split('/').pop().split('?').shift();
+  let extension = /\.([^\.]+)$/.exec(name);
+  if (extension && extension.length) {
+    extension = extension[1];
+    name = name.replace('.' + extension, '');
+  }
+  else {
+    extension = message.type.split('/').pop().split('+').shift().split(';').shift();
+  }
+  return name + '.' + extension;
 }
 
 chrome.runtime.onMessage.addListener((message) => {

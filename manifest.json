@@ -3,7 +3,7 @@
   "short_name": "ibmdownloader",
   "description": "Grab and download media (image and video) sources by monitoring network (like FlashGot)",
   "author": "InBasic",
-  "version": "0.1.6",
+  "version": "0.1.8",
   "manifest_version": 2,
   "permissions": [
     "storage",
@@ -12,10 +12,12 @@
     "webRequest",
     "downloads",
     "management",
-    "notifications"
+    "notifications",
+    "contextMenus"
   ],
   "background": {
     "scripts": [
+      "save-images.js",
       "common.js"
     ]
   },
@@ -30,5 +32,13 @@
     "16": "data/icons/16.png",
     "48": "data/icons/48.png",
     "128": "data/icons/128.png"
-  }
+  },
+  "applications": {
+    "gecko": {
+      "id": "{72b2e02b-3a71-4895-886c-fd12ebe36ba3}"
+    }
+  },
+  "web_accessible_resources": [
+    "data/inject/index.html"
+  ]
 }

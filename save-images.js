@@ -1,0 +1,1 @@
+../save-all-images/save-images.js

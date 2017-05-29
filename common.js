@@ -35,10 +35,13 @@ var monitor = {
       return;
     }
     // prevent YouTube video link detection
-    if (d.url.indexOf('googlevideo.') !== -1) {
+    if (os === 'chrome' && d.url.indexOf('googlevideo.') !== -1) {
       return;
     }
     let type = d.responseHeaders.filter(o => o.name === 'content-type' || o.name === 'Content-Type');
+
+    // remove range from stream URL if possible;
+    d.url = d.url.replace(/\&range=\d+\-\d+/, '');
 
     if (type.length) {
       stats.total += 1;
@@ -179,6 +182,31 @@ chrome.runtime.onMessage.addListener((message) => {
         }
       }
     );
+  }
+});
+
+// Image Downloader (Open modified @belaviyo's image downloader UI [with developer's permission])
+chrome.contextMenus.create({
+  title: 'Download all loaded images',
+  contexts: ['browser_action'],
+  documentUrlPatterns: ['*://*/*'],
+  onclick: (info, tab) => {
+    window.count += 1;
+    chrome.tabs.executeScript(tab.id, {
+      file: 'data/inject/inject.js',
+      runAt: 'document_start',
+      allFrames: false
+    }, () => {
+      if (chrome.runtime.lastError) {
+        window.count -= 1;
+        chrome.notifications.create({
+          type: 'basic',
+          title: 'Bulk Media Downloader',
+          message: 'Cannot collect images on this tab\n\n' + chrome.runtime.lastError.message,
+          iconUrl: '/data/icons/48.png'
+        });
+      }
+    });
   }
 });
 

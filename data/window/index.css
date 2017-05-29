@@ -47,7 +47,12 @@ input[type=button] {
   width: 100%;
   box-sizing: border-box;
   outline: none;
+  transition: opacity .25s ease-in-out;
 }
+input[type=button]:active {
+  opacity: 0.5;
+}
+
 input {
   height: 22px;
   border: solid 1px #bdbdbd;
@@ -241,5 +246,9 @@ body[data-size="10m"] #links tbody tr:not([data-size*=iii]) {
   max-width: 200px;
 }
 body[data-os=firefox] [data-cmd="download-tdm"] {
+  display: none;
+}
+
+body:not([data-os=chrome]) .chrome {
   display: none;
 }
