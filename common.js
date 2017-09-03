@@ -45,12 +45,12 @@ var config = {
   }
 };
 
-var position = function (prefs) { // jshint ignore:line
+var position = function(prefs) { // jshint ignore:line
   chrome.storage.local.set(prefs);
 };
 
 var monitor = {
-  observe: (d) => {
+  observe: d => {
     if (d.tabId === -1) {
       return;
     }
@@ -61,7 +61,7 @@ var monitor = {
     let type = d.responseHeaders.filter(o => o.name === 'content-type' || o.name === 'Content-Type');
 
     // remove range from stream URL if possible;
-    d.url = d.url.replace(/\&range=\d+\-\d+/, '');
+    d.url = d.url.replace(/&range=\d+-\d+/, '');
 
     if (type.length) {
       stats.total += 1;
@@ -111,7 +111,7 @@ var monitor = {
 };
 
 chrome.browserAction.onClicked.addListener(() => {
-  function create () {
+  function create() {
     chrome.storage.local.get({
       width: 700,
       height: 500,
@@ -146,7 +146,7 @@ chrome.browserAction.onClicked.addListener(() => {
   }
 });
 
-chrome.runtime.onMessage.addListener((message) => {
+chrome.runtime.onMessage.addListener(message => {
   if (message === 'pause') {
     monitor.deactivate();
   }
@@ -154,17 +154,17 @@ chrome.runtime.onMessage.addListener((message) => {
     monitor.activate();
   }
   else if (message.cmd === 'download-browser') {
-    let options = {
+    const options = {
       url: message.url
     };
     if (message.filename && message.filename !== '-') {
       options.filename = message.filename
-        .replace(/[`~!@#$%^&*()_|+\-=?;:'",<>\{\}\[\]\\\/]/gi, '');
+        .replace(/[`~!@#$%^&*()_|+\-=?;:'",<>{}[\]\\/]/gi, '');
     }
 
     chrome.downloads.download(options, () => {
       if (chrome.runtime.lastError) {
-        let a = document.createElement('a');
+        const a = document.createElement('a');
         a.href = options.url;
         a.setAttribute('download', options.filename || 'unknown_name');
         a.dispatchEvent(new MouseEvent('click'));
@@ -178,7 +178,7 @@ chrome.runtime.onMessage.addListener((message) => {
       firefox: 'jid0-dsq67mf5kjjhiiju2dfb6kk8dfw@jetpack'
     })[os];
     chrome.management.get(id,
-      (result) => {
+      result => {
         if (result) {
           chrome.management.launchApp(id, () => {
             chrome.runtime.sendMessage(id, {
@@ -233,9 +233,9 @@ chrome.contextMenus.create({
 // FAQs & Feedback
 chrome.storage.local.get({
   'version': null,
-  'faqs': navigator.userAgent.toLowerCase().indexOf('firefox') === -1 ? true : false
+  'faqs': navigator.userAgent.indexOf('Firefox') === -1
 }, prefs => {
-  let version = chrome.runtime.getManifest().version;
+  const version = chrome.runtime.getManifest().version;
 
   if (prefs.version ? (prefs.faqs && prefs.version !== version) : true) {
     chrome.storage.local.set({version}, () => {
@@ -246,7 +246,7 @@ chrome.storage.local.get({
     });
   }
 });
-(function () {
-  let {name, version} = chrome.runtime.getManifest();
+{
+  const {name, version} = chrome.runtime.getManifest();
   chrome.runtime.setUninstallURL('http://add0n.com/feedback.html?name=' + name + '&version=' + version);
-})();
+}

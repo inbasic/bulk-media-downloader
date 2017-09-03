@@ -26,12 +26,12 @@ document.body.dataset.os = navigator.userAgent.indexOf('Firefox') !== -1 ? 'fire
 );
 
 var is = {
-  application: (tr) => tr.dataset.type === 'application',
-  document: (tr) => tr.dataset.type === 'document' || /\.(txt|docm|xps|odc|otc|odb|odf|odft|odg|otg|odi|oti|odp|otp|ods|ots|odt|odm|ott|oth|pptx|sldx|ppsx|potx|xlsx|xltx|docx|dotx)$/.test(tr.dataset.url),
-  video: (tr) => tr.dataset.type === 'video' || /\.(3gp|3g2|h261|h263|h264|jpgv|jpm|jpgm|mj2|mjp2|ts|mp4|mp4v|mpg4|mpeg|mpg|mpe|m1v|m2v|ogv|qt|mov|uvh|uvvh|uvm|uvvm|uvp|uvvp|uvs|uvvs|uvv|uvvv|dvb|fvt|mxu|m4u|pyv|uvu|uvvu|viv|webm|f4v|fli|flv|m4v|mkv|mk3d|mks|mng|asf|asx|vob|wm|wmv|wmx|wvx|avi|movie|smv)$/.test(tr.dataset.url),
-  audio: (tr) => tr.dataset.type === 'audio' || /\.(adp|au|snd|mid|midi|kar|rmi|m4a|mp3|mpga|mp2|mp2a|m2a|m3a|oga|ogg|spx|s3m|sil|uva|uvva|eol|dra|dts|dtshd|lvp|pya|rip|weba|aac|aif|aiff|aifc|caf|flac|mka|m3u|wax|wma|ra|rmp|wav)$/.test(tr.dataset.url),
-  archive: (tr) => tr.dataset.type === 'archive' || /\.(zip|rar|jar|apk|xpi|crx|joda|tao)$/.test(tr.dataset.url),
-  image: (tr) => tr.dataset.type === 'image' || /\.(bmp|cgm|g3|gif|ief|jpeg|jpg|jpe|ktx|png|btif|sgi|svg|svgz|tiff|tif|psd|uvi|uvvi|uvg|uvvg|djv|sub|dwg|dxf|fbs|fpx|fst|mmr|rlc|mdi|wdp|npx|wbmp|xif|webp|3ds|ras|cmx|fh|fhc|fh4|fh5|fh7|ico|sid|pcx|pic|pct|pnm|pbm|pgm|ppm|rgb|tga|xbm|xpm|xwd)$/.test(tr.dataset.url)
+  application: tr => tr.dataset.type === 'application',
+  document: tr => tr.dataset.type === 'document' || /\.(txt|docm|xps|odc|otc|odb|odf|odft|odg|otg|odi|oti|odp|otp|ods|ots|odt|odm|ott|oth|pptx|sldx|ppsx|potx|xlsx|xltx|docx|dotx)$/.test(tr.dataset.url),
+  video: tr => tr.dataset.type === 'video' || /\.(3gp|3g2|h261|h263|h264|jpgv|jpm|jpgm|mj2|mjp2|ts|mp4|mp4v|mpg4|mpeg|mpg|mpe|m1v|m2v|ogv|qt|mov|uvh|uvvh|uvm|uvvm|uvp|uvvp|uvs|uvvs|uvv|uvvv|dvb|fvt|mxu|m4u|pyv|uvu|uvvu|viv|webm|f4v|fli|flv|m4v|mkv|mk3d|mks|mng|asf|asx|vob|wm|wmv|wmx|wvx|avi|movie|smv)$/.test(tr.dataset.url),
+  audio: tr => tr.dataset.type === 'audio' || /\.(adp|au|snd|mid|midi|kar|rmi|m4a|mp3|mpga|mp2|mp2a|m2a|m3a|oga|ogg|spx|s3m|sil|uva|uvva|eol|dra|dts|dtshd|lvp|pya|rip|weba|aac|aif|aiff|aifc|caf|flac|mka|m3u|wax|wma|ra|rmp|wav)$/.test(tr.dataset.url),
+  archive: tr => tr.dataset.type === 'archive' || /\.(zip|rar|jar|apk|xpi|crx|joda|tao)$/.test(tr.dataset.url),
+  image: tr => tr.dataset.type === 'image' || /\.(bmp|cgm|g3|gif|ief|jpeg|jpg|jpe|ktx|png|btif|sgi|svg|svgz|tiff|tif|psd|uvi|uvvi|uvg|uvvg|djv|sub|dwg|dxf|fbs|fpx|fst|mmr|rlc|mdi|wdp|npx|wbmp|xif|webp|3ds|ras|cmx|fh|fhc|fh4|fh5|fh7|ico|sid|pcx|pic|pct|pnm|pbm|pgm|ppm|rgb|tga|xbm|xpm|xwd)$/.test(tr.dataset.url)
 };
 
 var urls = [];
@@ -44,15 +44,15 @@ var config = {
 Object.defineProperty(config, 'filter', {
   enumerable: true,
   configurable: true,
-  get () {
+  get() {
     return config._filter;
   },
-  set (val) {
+  set(val) {
     config._filter = val;
-    document.body.dataset.filterVideo = val === 'video' || val === 'all' || val === 'media' ? true : false;
-    document.body.dataset.filterAudio = val === 'audio' || val === 'all' || val === 'media' ? true : false;
-    document.body.dataset.filterImage = val === 'image' || val === 'all' ? true : false;
-    document.body.dataset.filterApp = val === 'application' || val === 'all' ? true : false;
+    document.body.dataset.filterVideo = val === 'video' || val === 'all' || val === 'media';
+    document.body.dataset.filterAudio = val === 'audio' || val === 'all' || val === 'media';
+    document.body.dataset.filterImage = val === 'image' || val === 'all';
+    document.body.dataset.filterApp = val === 'application' || val === 'all';
     $.filter.textContent = `Type (${val})`;
     chrome.storage.local.set({filter: val});
   }
@@ -60,10 +60,10 @@ Object.defineProperty(config, 'filter', {
 Object.defineProperty(config, 'monitor', {
   enumerable: true,
   configurable: true,
-  get () {
+  get() {
     return config._monitor;
   },
-  set (val) {
+  set(val) {
     config._monitor = val;
     chrome.runtime.sendMessage(val ? 'resume' : 'pause');
     document.body.dataset.active = val;
@@ -75,10 +75,10 @@ Object.defineProperty(config, 'monitor', {
 Object.defineProperty(config, 'size', {
   enumerable: true,
   configurable: true,
-  get () {
+  get() {
     return config._size;
   },
-  set (val) {
+  set(val) {
     config._size = val;
     document.body.dataset.size = val;
     $.size.textContent = `Size (${val})`;
@@ -86,7 +86,7 @@ Object.defineProperty(config, 'size', {
   }
 });
 
-function notify (message) {
+function notify(message) {
   chrome.notifications.create(null, {
     type: 'basic',
     iconUrl: '/data/icons/48.png',
@@ -94,16 +94,16 @@ function notify (message) {
     message
   });
 }
-function visible (e) {
-  return !!(e.offsetWidth || e.offsetHeight || e.getClientRects().length);
+function visible(e) {
+  return Boolean(e.offsetWidth || e.offsetHeight || e.getClientRects().length);
 }
 
-function state () {
+function state() {
   const disabled = [...$.links.querySelectorAll('[type=checkbox]:checked')].filter(visible).length === 0;
   $.buttons.tdm.disabled = $.buttons.browser.disabled = $.buttons.links.disabled = disabled;
 }
 
-function isChecked (tr) {
+function isChecked(tr) {
   let checked = false;
   if ($.filters.all.checked) {
     checked = true;
@@ -129,7 +129,7 @@ function isChecked (tr) {
     }
     if ($.filters.regexp.value) {
       try {
-        let r = new RegExp($.filters.regexp.value);
+        const r = new RegExp($.filters.regexp.value);
         checked = checked || r.test(tr.dataset.url);
         if (tr.dataset.filename && tr.dataset.filename !== '-') {
           checked = checked || r.test(tr.dataset.filename);
@@ -140,26 +140,26 @@ function isChecked (tr) {
   }
   return checked;
 }
-(function (callback) {
+(function(callback) {
   $.filters.parent.addEventListener('change', callback);
   $.filters.parent.addEventListener('keyup', callback);
-})(function () {
+})(function() {
   [...$.tbody.querySelectorAll('tr')]
     .forEach(tr => tr.querySelector('[type=checkbox]').checked = isChecked(tr));
   state();
 });
 
-function bytesToSize (bytes) {
+function bytesToSize(bytes) {
   if (bytes === 0 || bytes === '0') {
     return '0 Byte';
   }
-  let k = 1024;
-  let sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB'];
-  let i = Math.floor(Math.log(bytes) / Math.log(k));
+  const k = 1024;
+  const sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB'];
+  const i = Math.floor(Math.log(bytes) / Math.log(k));
   return (bytes / Math.pow(k, i)).toFixed(i ? 1 : 0) + ' ' + sizes[i];
 }
 // display or hide a top menu
-document.addEventListener('click', (e) => {
+document.addEventListener('click', e => {
   const cmd = e.target.dataset.cmd;
   $.head.dataset.select = cmd === 'toggle-select';
   $.head.dataset.filter = cmd === 'toggle-filter';
@@ -167,7 +167,7 @@ document.addEventListener('click', (e) => {
 });
 
 // toggle item's selection on click
-document.addEventListener('click', (e) => {
+document.addEventListener('click', e => {
   const target = e.target;
   const tr = target.closest('tr');
   if (tr && tr.closest('#links')) {
@@ -180,7 +180,7 @@ document.addEventListener('click', (e) => {
 });
 
 // commands
-document.addEventListener('click', (e) => {
+document.addEventListener('click', e => {
   const cmd = e.target.dataset.cmd;
   if (cmd === 'pause' || cmd === 'resume') {
     config.monitor = cmd === 'resume';
@@ -214,7 +214,7 @@ document.addEventListener('click', (e) => {
       .filter(item => visible(item))
       .map(e => e.closest('tr'))
       .map(tr => tr.dataset.url);
-    document.oncopy = (e) => {
+    document.oncopy = e => {
       e.clipboardData.setData('text/plain', links.join('\n'));
       e.preventDefault();
     };
@@ -224,7 +224,7 @@ document.addEventListener('click', (e) => {
   }
 });
 // top menu selection or filter changes
-document.addEventListener('click', (e) => {
+document.addEventListener('click', e => {
   const cmd = e.target.dataset.cmd;
 
   if (cmd && cmd.startsWith('select-')) {
@@ -249,7 +249,7 @@ document.addEventListener('click', (e) => {
   }
 });
 
-function findTitle (message) {
+function findTitle(message) {
   if (message.disposition) {
     if (message.disposition.indexOf('inline') !== -1) {
       const matches = /filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/.exec(message.disposition);
@@ -258,14 +258,14 @@ function findTitle (message) {
       }
     }
     else {
-      const matches = /filename\=([^\;]*)/.exec(message.disposition);
+      const matches = /filename=([^;]*)/.exec(message.disposition);
       if (matches && matches.length) {
-        return matches[1].replace(/[\"\']$/, '').replace(/^[\"\']/, '');
+        return matches[1].replace(/["']$/, '').replace(/^["']/, '');
       }
     }
   }
   let name = message.url.split('/').pop().split('?').shift();
-  let extension = /\.([^\.]+)$/.exec(name);
+  let extension = /\.([^.]+)$/.exec(name);
   if (extension && extension.length) {
     extension = extension[1];
     name = name.replace('.' + extension, '');
@@ -276,7 +276,7 @@ function findTitle (message) {
   return name + '.' + extension;
 }
 
-chrome.runtime.onMessage.addListener((message) => {
+chrome.runtime.onMessage.addListener(message => {
   if (message.cmd === 'append') {
     if (urls.indexOf(message.url) !== -1) {
       return;
