@@ -65,6 +65,7 @@ input[type=submit],
 input[type=button] {
   cursor: pointer;
   background-color: #fff;
+  color: #000;
 }
 input:disabled {
   opacity: 0.3;
