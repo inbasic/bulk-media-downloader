@@ -41,5 +41,9 @@
     "gecko": {
       "id": "{72b2e02b-3a71-4895-886c-fd12ebe36ba3}"
     }
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/inbasic/bulk-media-downloader.git"
   }
 }
