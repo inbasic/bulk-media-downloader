@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>My Test Extension Options</title>
+  <style>
+    body: {
+      padding: 10px;
+      font-family: "Helvetica Neue",Helvetica,sans-serif;
+      font-size: 13px;
+    }
+  </style>
+</head>
+
+<body>
+  <table width=100%>
+    <tr>
+      <td><label for="notify">Display desktop notifications</label></td>
+      <td><input type="checkbox" id="notify"></td>
+    </tr>
+    <tr>
+      <td><label for="FAQs">Open FAQs page on updates</label></td>
+      <td><input type="checkbox" id="faqs"></td>
+    </tr>
+  </table>
+
+  <p>
+    <button id="save">Save</button>
+    <span id="status"></span>
+  </p>
+
+  <script src="index.js"></script>
+</body>
+</html>

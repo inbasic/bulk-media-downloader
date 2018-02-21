@@ -6,24 +6,25 @@
     <link rel="stylesheet" href="fontello.css">
     <link rel="stylesheet" href="index.css">
   </head>
-  <body data-active=true>
-    <div id="head">
-      <ul>
-        <li>Refresh the active tab or a tab that you want to grab media resources (image, audio or video) from.</li>
-        <li>If there is a video source in the tab, it needs to be streamed for the media source to be grabbed.</li>
-        <li>When the intended resource is grabbed, make sure to press the "Pause" button to release network observer and prevent cluttering of this window with new resources.</li>
-        <li class="chrome">Detection of YouTube resources is locked because of restrictions of the Chrome Store.</li>
-        <li>To download all loaded images on a page, use the image grabber tool from right-click over the toolbar button</li>
-        <li>To convert media files to different formats, use <a href="http://add0n.com/media-converter.html" target="_blank">Media Converter</a> add-on.</li>
-      </ul>
-      <div>
+  <body vbox data-active=true>
+    <div id="head" hbox>
+      <div id="details" vbox>
+        <details>
+          <summary>How to use this tool:</summary>
+          <ul>
+            <li>Refresh the active tab or a tab that you want to grab media resources (image, audio or video) from.</li>
+            <li>If there is a video source in the tab, it needs to be streamed for the media source to be grabbed.</li>
+            <li>When the intended resource is grabbed, make sure to press the "Pause" button to release network observer and prevent cluttering of this window with new resources.</li>
+            <li class="chrome">Detection of YouTube resources is locked because of restrictions of the Chrome Store.</li>
+            <li>To download all loaded images on a page, use the image grabber tool from right-click over the toolbar button</li>
+            <li>To convert media files to different formats, use <a href="http://add0n.com/media-converter.html" target="_blank">Media Converter</a> add-on.</li>
+          </ul>
+        </details>
+      </div>
+      <div vbox pack="center" align="center">
         <img alt="" src="working.gif">
         <div id="stats">0/0</div>
       </div>
-    </div>
-    <div >
-      <p></p>
-      <p></p>
     </div>
     <div style="display: none;">
       <table id="tr">
@@ -99,7 +100,7 @@
         </tbody>
       </table>
     </div>
-    <div id="filters">
+    <div id="filters" hbox align="center">
       <label><input type="checkbox" value="all_files"><span class="icon-"></span> All files</label>
       <label><input type="checkbox" value="applications"><span class="icon-"></span> Application</label>
       <label><input type="checkbox" value="images"><span class="icon-"></span> Image</label>
@@ -107,16 +108,46 @@
       <label><input type="checkbox" value="audios"><span class="icon-"></span> Audio</label>
       <label><input type="checkbox" value="archives"><span class="icon-"></span> Archive</label>
       <label><input type="checkbox" value="documents"><span class="icon-"></span> Document</label>
+      <label><input type="checkbox" value="tab"><span class="icon-"></span> Tab</label>
       <input type="text" placeholder="RegExp matching">
     </div>
-    <div id="tools">
+    <div id="tools" hbox pack="center">
       <input data-cmd="pause" type="button" value="Pause">
       <input data-cmd="download-browser" type="button" disabled=true value="Download (browser)" title="Download with the biult-in download manager">
       <input data-cmd="download-tdm" type="button" disabled=true value="Download (Turbo Download Manager)" title="Download with Turbo Download Manager">
       <input data-cmd="copy-links" type="button" disabled=true value="Copy Links" title="Copy links of all selected items">
       <input data-cmd="clear" type="button" value="Clear List">
     </div>
+    <div id="external">
+      <div id="external-container">
+        <details open vbox flex="1">
+          <summary>External Executable:</summary>
+          <div hbox align="center">
+            <select value=''>
+              <option value="idm">IDM</option>
+              <option value="fdm">FDM</option>
+              <option value="wget">Wget</option>
+              <option value="cus1">Custom Command 1</option>
+              <option value="cus2">Custom Command 2</option>
+              <option value="cus3">Custom Command 3</option>
+            </select>
+            <label><input type="checkbox" id="quotes"> Surround arguments with quote characters</label>
+          </div>
+          <div hbox>
+            <input type="text" id="external-path" placeholder="path to the external executable">
+            <input type="text" id="external-args" placeholder="list of arguments" style="flex: 2">
+          </div>
+          <div id="external-actions" hbox pack=end>
+            <input type="button" value="Save" data-cmd="save" disabled=true title="Remeber the path and argument list changes">
+            <input type="button" value="Run" data-cmd="run" disabled=true title='Run external executable.&#013;Note: this requires "External Application Button" extension to be available.'>
+          </div>
+          <input type=text readonly=true style="width: 100%;" value="Keywords: [HREF], [HOSTNAME], [PATHNAME], [HASH], [PROTOCOL], [SELECTIONTEXT], [DOWNLOADED_PATH], [FILENAME], [REFERRER]"></input>
+        </details>
+      </div>
+    </div>
     <script src="elements.js"></script>
+    <script src="persist.js"></script>
     <script src="index.js"></script>
+    <script src="external.js"></script>
   </body>
 </html>

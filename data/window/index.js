@@ -7,12 +7,26 @@
  * Home: http://add0n.com/media-tools.html
  * GitHub: https://github.com/inbasic/bulk-media-downloader/ */
 
-/* globals $ */
+/* globals $, persist */
 'use strict';
 
 document.body.dataset.os = navigator.userAgent.indexOf('Firefox') !== -1 ? 'firefox' : (
   navigator.userAgent.indexOf('OPR') === -1 ? 'chrome' : 'opera'
 );
+if (window.location.search) {
+  document.body.dataset.tabId = window.location.search.replace('?tabId=', '');
+}
+
+var update = (function(callback) {
+  $.filters.parent.addEventListener('change', callback);
+  $.filters.parent.addEventListener('keyup', callback);
+
+  return () => callback();
+})(function() {
+  [...$.tbody.querySelectorAll('tr')]
+    .forEach(tr => tr.querySelector('[type=checkbox]').checked = isChecked(tr));
+  state();
+});
 
 var is = {
   application: tr => tr.dataset.type === 'application',
@@ -20,7 +34,8 @@ var is = {
   video: tr => tr.dataset.type === 'video' || /\.(3gp|3g2|h261|h263|h264|jpgv|jpm|jpgm|mj2|mjp2|ts|mp4|mp4v|mpg4|mpeg|mpg|mpe|m1v|m2v|ogv|qt|mov|uvh|uvvh|uvm|uvvm|uvp|uvvp|uvs|uvvs|uvv|uvvv|dvb|fvt|mxu|m4u|pyv|uvu|uvvu|viv|webm|f4v|fli|flv|m4v|mkv|mk3d|mks|mng|asf|asx|vob|wm|wmv|wmx|wvx|avi|movie|smv)$/.test(tr.dataset.url),
   audio: tr => tr.dataset.type === 'audio' || /\.(adp|au|snd|mid|midi|kar|rmi|m4a|mp3|mpga|mp2|mp2a|m2a|m3a|oga|ogg|spx|s3m|sil|uva|uvva|eol|dra|dts|dtshd|lvp|pya|rip|weba|aac|aif|aiff|aifc|caf|flac|mka|m3u|wax|wma|ra|rmp|wav)$/.test(tr.dataset.url),
   archive: tr => tr.dataset.type === 'archive' || /\.(zip|rar|jar|apk|xpi|crx|joda|tao)$/.test(tr.dataset.url),
-  image: tr => tr.dataset.type === 'image' || /\.(bmp|cgm|g3|gif|ief|jpeg|jpg|jpe|ktx|png|btif|sgi|svg|svgz|tiff|tif|psd|uvi|uvvi|uvg|uvvg|djv|sub|dwg|dxf|fbs|fpx|fst|mmr|rlc|mdi|wdp|npx|wbmp|xif|webp|3ds|ras|cmx|fh|fhc|fh4|fh5|fh7|ico|sid|pcx|pic|pct|pnm|pbm|pgm|ppm|rgb|tga|xbm|xpm|xwd)$/.test(tr.dataset.url)
+  image: tr => tr.dataset.type === 'image' || /\.(bmp|cgm|g3|gif|ief|jpeg|jpg|jpe|ktx|png|btif|sgi|svg|svgz|tiff|tif|psd|uvi|uvvi|uvg|uvvg|djv|sub|dwg|dxf|fbs|fpx|fst|mmr|rlc|mdi|wdp|npx|wbmp|xif|webp|3ds|ras|cmx|fh|fhc|fh4|fh5|fh7|ico|sid|pcx|pic|pct|pnm|pbm|pgm|ppm|rgb|tga|xbm|xpm|xwd)$/.test(tr.dataset.url),
+  tab: tr => tr.dataset.tabId === document.body.dataset.tabId
 };
 
 var urls = [];
@@ -43,7 +58,7 @@ Object.defineProperty(config, 'filter', {
     document.body.dataset.filterImage = val === 'image' || val === 'all';
     document.body.dataset.filterApp = val === 'application' || val === 'all';
     $.filter.textContent = `Type (${val})`;
-    chrome.storage.local.set({filter: val});
+    persist.save('filter', val);
   }
 });
 Object.defineProperty(config, 'monitor', {
@@ -71,17 +86,19 @@ Object.defineProperty(config, 'size', {
     config._size = val;
     document.body.dataset.size = val;
     $.size.textContent = `Size (${val})`;
-    chrome.storage.local.set({size: val});
+    persist.save('size', val);
   }
 });
 
 function notify(message) {
-  chrome.notifications.create(null, {
+  chrome.storage.local.get({
+    notify: true
+  }, prefs => prefs.notify && chrome.notifications.create(null, {
     type: 'basic',
     iconUrl: '/data/icons/48.png',
     title: 'Bulk Media Downloader',
     message
-  });
+  }));
 }
 function visible(e) {
   return Boolean(e.offsetWidth || e.offsetHeight || e.getClientRects().length);
@@ -89,7 +106,11 @@ function visible(e) {
 
 function state() {
   const disabled = [...$.links.querySelectorAll('[type=checkbox]:checked')].filter(visible).length === 0;
-  $.buttons.tdm.disabled = $.buttons.browser.disabled = $.buttons.links.disabled = disabled;
+  $.buttons.tdm.disabled =
+  $.buttons.browser.disabled =
+  $.buttons.links.disabled =
+  $.external.run.disabled =
+    disabled;
 }
 
 function isChecked(tr) {
@@ -116,6 +137,9 @@ function isChecked(tr) {
     if ($.filters.documents.checked) {
       checked = checked || is.document(tr);
     }
+    if ($.filters.tab.checked) {
+      checked = checked || is.tab(tr);
+    }
     if ($.filters.regexp.value) {
       try {
         const r = new RegExp($.filters.regexp.value);
@@ -129,14 +153,6 @@ function isChecked(tr) {
   }
   return checked;
 }
-(function(callback) {
-  $.filters.parent.addEventListener('change', callback);
-  $.filters.parent.addEventListener('keyup', callback);
-})(function() {
-  [...$.tbody.querySelectorAll('tr')]
-    .forEach(tr => tr.querySelector('[type=checkbox]').checked = isChecked(tr));
-  state();
-});
 
 function bytesToSize(bytes) {
   if (bytes === 0 || bytes === '0') {
@@ -265,6 +281,28 @@ function findTitle(message) {
   return name + '.' + extension;
 }
 
+var referrer = (() => {
+  const cache = {};
+
+  chrome.tabs.onUpdated.addListener((tabId, changeInfo) => {
+    if (changeInfo.url) {
+      cache[tabId] = changeInfo.url;
+    }
+  });
+
+  return (id, tr) => {
+    if (cache[id]) {
+      tr.dataset.referrer = cache[id];
+    }
+    else {
+      chrome.tabs.get(id, t => {
+        cache[id] = t.url;
+        tr.dataset.referrer = cache[id];
+      });
+    }
+  };
+})();
+
 chrome.runtime.onMessage.addListener(message => {
   if (message.cmd === 'append') {
     if (urls.indexOf(message.url) !== -1) {
@@ -288,10 +326,11 @@ chrome.runtime.onMessage.addListener(message => {
         )
       )
     });
-    // To-Do; find actual tab referrer from chrome.tabs API
-    tr.dataset.referrer = message.url;
+    referrer(message.tabId, tr);
 
     tr.dataset.filename = tds[5].title = tds[5].textContent = findTitle(message);
+
+    tr.dataset.tabId = message.tabId;
 
     const shouldScroll = $.links.scrollHeight - $.links.clientHeight === $.links.scrollTop;
     $.tbody.appendChild(tr);
@@ -310,6 +349,10 @@ chrome.runtime.onMessage.addListener(message => {
       const tds = tr.querySelectorAll('td');
       tds[5].textContent = message.msg;
     }
+  }
+  else if (message.cmd === 'update-id') {
+    document.body.dataset.tabId = message.id;
+    update();
   }
 });
 // load

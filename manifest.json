@@ -3,7 +3,7 @@
   "short_name": "ibmdownloader",
   "description": "Grab and download media (image and video) sources by monitoring network (like FlashGot)",
   "author": "InBasic",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "manifest_version": 2,
   "permissions": [
     "storage",
@@ -37,6 +37,10 @@
   "web_accessible_resources": [
     "data/inject/index.html"
   ],
+  "options_ui": {
+    "page": "data/options/index.html",
+    "chrome_style": true
+  },
   "applications": {
     "gecko": {
       "id": "{72b2e02b-3a71-4895-886c-fd12ebe36ba3}"

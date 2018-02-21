@@ -21,6 +21,11 @@ var $ = {
   pause: document.querySelector('[data-cmd="pause"]'),
 };
 
+$.header = {
+  details: document.querySelector('details'),
+  summary: document.querySelector('summary')
+};
+
 $.filters = {
   parent: document.getElementById('filters'),
   all: document.querySelector('#filters [value="all_files"]'),
@@ -29,6 +34,7 @@ $.filters = {
   audios: document.querySelector('#filters [value="audios"]'),
   applications: document.querySelector('#filters [value="applications"]'),
   documents: document.querySelector('#filters [value="documents"]'),
+  tab: document.querySelector('#filters [value="tab"]'),
   archives: document.querySelector('#filters [value="archives"]'),
   regexp: document.querySelector('#filters [type=text]')
 };
@@ -37,4 +43,16 @@ $.buttons = {
   tdm: document.querySelector('[data-cmd="download-tdm"]'),
   browser: document.querySelector('[data-cmd="download-browser"]'),
   links: document.querySelector('[data-cmd="copy-links"]')
+};
+
+$.external = {
+  summary: document.querySelector(('#external summary')),
+  details: document.querySelector(('#external details')),
+  quotes: document.getElementById('quotes'),
+  path: document.getElementById('external-path'),
+  args: document.getElementById('external-args'),
+  select: document.querySelector('#external select'),
+  run: document.querySelector('#external [data-cmd=run]'),
+  save: document.querySelector('#external [data-cmd=save]'),
+  actions: document.getElementById('external-actions')
 };

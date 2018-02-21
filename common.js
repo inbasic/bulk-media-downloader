@@ -34,6 +34,13 @@ var config = {
   }
 };
 
+var notify = message => chrome.notifications.create({
+  type: 'basic',
+  iconUrl: '/data/icons/48.png',
+  title: 'Bulk Media Downloader',
+  message
+});
+
 var position = function(prefs) { // jshint ignore:line
   chrome.storage.local.set(prefs);
 };
@@ -99,16 +106,16 @@ var monitor = {
   }
 };
 
-chrome.browserAction.onClicked.addListener(() => {
+chrome.browserAction.onClicked.addListener(tab => {
   function create() {
     chrome.storage.local.get({
       width: 700,
       height: 500,
-      left: Math.round((screen.availWidth - 700) / 2),
-      top: Math.round((screen.availHeight - 500) / 2),
+      left: screen.availLeft + Math.round((screen.availWidth - 700) / 2),
+      top: screen.availTop + Math.round((screen.availHeight - 500) / 2),
     }, prefs => {
       chrome.windows.create({
-        url: chrome.extension.getURL('data/window/index.html'),
+        url: chrome.extension.getURL('data/window/index.html?tabId=' + tab.id),
         width: prefs.width,
         height: prefs.height,
         left: prefs.left,
@@ -127,6 +134,10 @@ chrome.browserAction.onClicked.addListener(() => {
       }
       else {
         chrome.windows.update(win.id, {focused: true});
+        chrome.tabs.sendMessage(win.tabs[0].id, {
+          cmd: 'update-id',
+          id: tab.id
+        });
       }
     });
   }
@@ -182,12 +193,7 @@ chrome.runtime.onMessage.addListener(message => {
             url: config.urls[os].app,
             active: true
           });
-          chrome.notifications.create(null, {
-            type: 'basic',
-            iconUrl: './data/icons/48.png',
-            title: 'Bulk Media Downloader',
-            message: 'Please install "Turbo Download Manager" extension first'
-          });
+          notify('Please install "Turbo Download Manager" extension first');
         }
       }
     );
@@ -208,12 +214,7 @@ chrome.contextMenus.create({
     }, () => {
       if (chrome.runtime.lastError) {
         window.count -= 1;
-        chrome.notifications.create({
-          type: 'basic',
-          title: 'Bulk Media Downloader',
-          message: 'Cannot collect images on this tab\n\n' + chrome.runtime.lastError.message,
-          iconUrl: '/data/icons/48.png'
-        });
+        notify('Cannot collect images on this tab\n\n' + chrome.runtime.lastError.message);
       }
     });
   }
