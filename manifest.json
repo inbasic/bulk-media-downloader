@@ -1,38 +1,31 @@
 {
   "name": "Bulk Media Downloader",
-  "short_name": "ibmdownloader",
   "description": "Grab and download media (image and video) sources by monitoring network (like FlashGot)",
-  "author": "InBasic",
-  "version": "0.2.1",
+  "version": "0.2.2",
   "manifest_version": 2,
   "permissions": [
     "storage",
-    "tabs",
     "<all_urls>",
     "webRequest",
     "downloads",
-    "management",
     "notifications",
     "contextMenus"
   ],
   "background": {
     "scripts": [
-      "jszip.js",
-      "save-images.js",
       "common.js"
     ]
   },
-  "browser_action": {
-    "default_icon": {
-      "16": "data/icons/16.png",
-      "32": "data/icons/32.png"
-    }
-  },
-  "homepage_url": "http://add0n.com/media-tools.html",
+  "browser_action": {},
+  "homepage_url": "https://add0n.com/media-tools.html",
   "icons": {
     "16": "data/icons/16.png",
+    "32": "data/icons/32.png",
     "48": "data/icons/48.png",
-    "128": "data/icons/128.png"
+    "64": "data/icons/64.png",
+    "128": "data/icons/128.png",
+    "256": "data/icons/256.png",
+    "512": "data/icons/512.png"
   },
   "web_accessible_resources": [
     "data/inject/index.html"
@@ -40,10 +33,5 @@
   "options_ui": {
     "page": "data/options/index.html",
     "chrome_style": true
-  },
-  "applications": {
-    "gecko": {
-      "id": "{72b2e02b-3a71-4895-886c-fd12ebe36ba3}"
-    }
   }
 }

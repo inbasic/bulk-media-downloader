@@ -261,10 +261,6 @@ input[type=button] {
   max-width: 80px;
 }
 
-body[data-os=firefox] [data-cmd="download-tdm"] {
-  display: none;
-}
-
 body:not([data-os=chrome]) .chrome {
   display: none;
 }

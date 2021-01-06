@@ -17,7 +17,7 @@ if (window.location.search) {
   document.body.dataset.tabId = window.location.search.replace('?tabId=', '');
 }
 
-var update = (function(callback) {
+const update = (function(callback) {
   $.filters.parent.addEventListener('change', callback);
   $.filters.parent.addEventListener('keyup', callback);
 
@@ -28,7 +28,7 @@ var update = (function(callback) {
   state();
 });
 
-var is = {
+const is = {
   application: tr => tr.dataset.type === 'application',
   document: tr => tr.dataset.type === 'document' || /\.(txt|docm|xps|odc|otc|odb|odf|odft|odg|otg|odi|oti|odp|otp|ods|ots|odt|odm|ott|oth|pptx|sldx|ppsx|potx|xlsx|xltx|docx|dotx)$/.test(tr.dataset.url),
   video: tr => tr.dataset.type === 'video' || /\.(3gp|3g2|h261|h263|h264|jpgv|jpm|jpgm|mj2|mjp2|ts|mp4|mp4v|mpg4|mpeg|mpg|mpe|m1v|m2v|ogv|qt|mov|uvh|uvvh|uvm|uvvm|uvp|uvvp|uvs|uvvs|uvv|uvvv|dvb|fvt|mxu|m4u|pyv|uvu|uvvu|viv|webm|f4v|fli|flv|m4v|mkv|mk3d|mks|mng|asf|asx|vob|wm|wmv|wmx|wvx|avi|movie|smv)$/.test(tr.dataset.url),
@@ -38,9 +38,9 @@ var is = {
   tab: tr => tr.dataset.tabId === document.body.dataset.tabId
 };
 
-var urls = [];
+let urls = [];
 
-var config = {
+const config = {
   _filter: 'all',
   _monitor: true,
   _size: 'all' // 'all', '100k', '1m', '10m'
@@ -106,7 +106,6 @@ function visible(e) {
 
 function state() {
   const disabled = [...$.links.querySelectorAll('[type=checkbox]:checked')].filter(visible).length === 0;
-  $.buttons.tdm.disabled =
   $.buttons.browser.disabled =
   $.buttons.links.disabled =
   $.external.run.disabled =
@@ -195,7 +194,7 @@ document.addEventListener('click', e => {
     urls = [];
     state();
   }
-  else if (cmd === 'download-browser' || cmd === 'download-tdm') {
+  else if (cmd === 'download-browser') {
     const items = [...$.links.querySelectorAll(':checked')]
       .filter(item => visible(item));
     if (items.length > 10) {
@@ -281,7 +280,7 @@ function findTitle(message) {
   return name + '.' + extension;
 }
 
-var referrer = (() => {
+const referrer = (() => {
   const cache = {};
 
   chrome.tabs.onUpdated.addListener((tabId, changeInfo) => {
@@ -360,16 +359,20 @@ chrome.storage.local.get({
   filter: 'media',
   size: 'all'
 }, prefs => {
-  config = Object.assign(config, prefs);
+  Object.assign(config, prefs);
 });
 // unload
+const port = chrome.runtime.connect({
+  name: 'window'
+});
+
 window.addEventListener('beforeunload', () => {
-  const background = chrome.extension.getBackgroundPage();
-  background.monitor.deactivate();
-  background.position({
+  port.postMessage({
+    method: 'resize',
     left: window.screenX,
     top: window.screenY,
     width: Math.max(window.outerWidth, 100),
     height: Math.max(window.outerHeight, 100)
   });
 });
+

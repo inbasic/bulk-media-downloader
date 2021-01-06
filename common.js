@@ -9,43 +9,43 @@
 
 'use strict';
 
-var os = navigator.userAgent.indexOf('Firefox') !== -1 ? 'firefox' : (
+const os = navigator.userAgent.indexOf('Firefox') !== -1 ? 'firefox' : (
   navigator.userAgent.indexOf('OPR') === -1 ? 'chrome' : 'opera'
 );
 
-var win = {};
+const ports = [];
+chrome.runtime.onConnect.addListener(port => {
+  ports.push(port);
+  port.onMessage.addListener(request => {
+    if (request.method === 'resize') {
+      chrome.storage.local.set({
+        left: request.left,
+        top: request.top,
+        width: request.width,
+        height: request.height
+      });
+    }
+  });
+  port.onDisconnect.addListener(() => {
+    const n = ports.indexOf(port);
+    ports.splice(n, 1);
+    monitor.deactivate();
+  });
+});
 
-var stats = {
+const stats = {
   total: 0,
   media: 0
 };
 
-var config = {
-  urls: {
-    chrome: {
-      app: 'https://chrome.google.com/webstore/detail/turbo-download-manager/kemfccojgjoilhfmcblgimbggikekjip'
-    },
-    opera: {
-      app: 'https://addons.opera.com/extensions/details/turbo-download-manager/'
-    },
-    firefox: {
-      app: 'https://addons.mozilla.org/firefox/addon/turbo-download-manager/'
-    }
-  }
-};
-
-var notify = message => chrome.notifications.create({
+const notify = message => chrome.notifications.create({
   type: 'basic',
   iconUrl: '/data/icons/48.png',
-  title: 'Bulk Media Downloader',
+  title: chrome.runtime.getManifest().name,
   message
 });
 
-var position = function(prefs) { // jshint ignore:line
-  chrome.storage.local.set(prefs);
-};
-
-var monitor = {
+const monitor = {
   observe: d => {
     if (d.tabId === -1) {
       return;
@@ -109,10 +109,10 @@ var monitor = {
 chrome.browserAction.onClicked.addListener(tab => {
   function create() {
     chrome.storage.local.get({
-      width: 700,
-      height: 500,
+      width: 750,
+      height: 600,
       left: screen.availLeft + Math.round((screen.availWidth - 700) / 2),
-      top: screen.availTop + Math.round((screen.availHeight - 500) / 2),
+      top: screen.availTop + Math.round((screen.availHeight - 600) / 2)
     }, prefs => {
       chrome.windows.create({
         url: chrome.extension.getURL('data/window/index.html?tabId=' + tab.id),
@@ -121,24 +121,17 @@ chrome.browserAction.onClicked.addListener(tab => {
         left: prefs.left,
         top: prefs.top,
         type: 'popup'
-      }, w => {
-        win = w;
-        monitor.activate();
-      });
+      }, () => monitor.activate());
     });
   }
-  if (win.id) {
-    chrome.windows.get(win.id, w => {
-      if (chrome.runtime.lastError || !w) {
-        create();
-      }
-      else {
-        chrome.windows.update(win.id, {focused: true});
-        chrome.tabs.sendMessage(win.tabs[0].id, {
-          cmd: 'update-id',
-          id: tab.id
-        });
-      }
+  if (ports.length) {
+    const tab = ports[0].sender.tab;
+    chrome.windows.update(tab.windowId, {
+      focused: true
+    });
+    chrome.tabs.sendMessage(tab.id, {
+      cmd: 'update-id',
+      id: tab.id
     });
   }
   else {
@@ -171,72 +164,44 @@ chrome.runtime.onMessage.addListener(message => {
       }
     });
   }
-  else if (message.cmd === 'download-tdm' && chrome.management) {
-    const id = ({
-      opera: 'lejgoophpfnabjcnfbphcndcjfpinbfk',
-      chrome: 'kemfccojgjoilhfmcblgimbggikekjip',
-      firefox: 'jid0-dsq67mf5kjjhiiju2dfb6kk8dfw@jetpack'
-    })[os];
-    chrome.management.get(id,
-      result => {
-        if (result) {
-          chrome.management.launchApp(id, () => {
-            chrome.runtime.sendMessage(id, {
-              'cmd': 'download',
-              'url': message.url,
-              'referrer': message.referrer
-            });
-          });
-        }
-        else {
-          chrome.tabs.create({
-            url: config.urls[os].app,
-            active: true
-          });
-          notify('Please install "Turbo Download Manager" extension first');
-        }
-      }
-    );
-  }
 });
 
 // Image Downloader (Open modified @belaviyo's image downloader UI [with developer's permission])
 chrome.contextMenus.create({
-  title: 'Download all loaded images',
+  title: 'Download all Images',
   contexts: ['browser_action'],
   documentUrlPatterns: ['*://*/*'],
-  onclick: (info, tab) => {
-    window.count += 1;
-    chrome.tabs.executeScript(tab.id, {
-      file: 'data/inject/inject.js',
-      runAt: 'document_start',
-      allFrames: false
-    }, () => {
-      if (chrome.runtime.lastError) {
-        window.count -= 1;
-        notify('Cannot collect images on this tab\n\n' + chrome.runtime.lastError.message);
-      }
+  onclick() {
+    chrome.tabs.create({
+      url: 'https://add0n.com/save-images.html'
     });
   }
 });
 
-// FAQs & Feedback
-chrome.storage.local.get({
-  'version': null,
-  'faqs': navigator.userAgent.indexOf('Firefox') === -1
-}, prefs => {
-  const version = chrome.runtime.getManifest().version;
-
-  if (prefs.version ? (prefs.faqs && prefs.version !== version) : true) {
-    chrome.storage.local.set({version}, () => {
-      chrome.tabs.create({
-        url: 'http://add0n.com/media-tools.html?version=' + version +
-          '&type=' + (prefs.version ? ('upgrade&p=' + prefs.version) : 'install')
-      });
-    });
-  }
-});
+/* FAQs & Feedback */
 {
-  const {name, version} = chrome.runtime.getManifest();
-  chrome.runtime.setUninstallURL('http://add0n.com/feedback.html?name=' + name + '&version=' + version);
+  const {management, runtime: {onInstalled, setUninstallURL, getManifest}, storage, tabs} = chrome;
+  if (navigator.webdriver !== true) {
+    const page = getManifest().homepage_url;
+    const {name, version} = getManifest();
+    onInstalled.addListener(({reason, previousVersion}) => {
+      management.getSelf(({installType}) => installType === 'normal' && storage.local.get({
+        'faqs': true,
+        'last-update': 0
+      }, prefs => {
+        if (reason === 'install' || (prefs.faqs && reason === 'update')) {
+          const doUpdate = (Date.now() - prefs['last-update']) / 1000 / 60 / 60 / 24 > 45;
+          if (doUpdate && previousVersion !== version) {
+            tabs.query({active: true, currentWindow: true}, tbs => tabs.create({
+              url: page + '?version=' + version + (previousVersion ? '&p=' + previousVersion : '') + '&type=' + reason,
+              active: reason === 'install',
+              ...(tbs && tbs.length && {index: tbs[0].index + 1})
+            }));
+            storage.local.set({'last-update': Date.now()});
+          }
+        }
+      }));
+    });
+    setUninstallURL(page + '?rd=feedback&name=' + encodeURIComponent(name) + '&version=' + version);
+  }
 }

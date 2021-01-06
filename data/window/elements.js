@@ -40,7 +40,6 @@ $.filters = {
 };
 
 $.buttons = {
-  tdm: document.querySelector('[data-cmd="download-tdm"]'),
   browser: document.querySelector('[data-cmd="download-browser"]'),
   links: document.querySelector('[data-cmd="copy-links"]')
 };

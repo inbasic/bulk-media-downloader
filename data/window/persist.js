@@ -7,14 +7,15 @@
  * Home: http://add0n.com/media-tools.html
  * GitHub: https://github.com/inbasic/bulk-media-downloader/ */
 
+/* globals $ */
 'use strict';
 
-var persist = {};
+const persist = {};
 
 chrome.storage.local.get({
   'external': 'idm',
-  'details-header': true,
-  'details-external': true,
+  'details-header': false,
+  'details-external': false,
   'quotes': false
 }, prefs => {
   $.external.select.value = prefs.external;
