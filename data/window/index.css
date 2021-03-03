@@ -149,6 +149,9 @@ body[data-filter-video=false] #links tbody tr[data-type=video] {
 body[data-filter-audio=false] #links tbody tr[data-type=audio] {
   display: none;
 }
+body[data-filter-app=false] #links tbody tr[data-type=application] {
+  display: none;
+}
 
 body[data-size="100k"] #links tbody tr:not([data-size*=i]),
 body[data-size="1m"] #links tbody tr:not([data-size*=ii]),
