@@ -1,0 +1,152 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+    <title>Bulk Media Downloader (active)</title>
+    <link rel="stylesheet" href="fontello.css">
+    <link rel="stylesheet" href="index.css">
+  </head>
+  <body vbox data-active=true>
+    <div id="head" hbox>
+      <div id="details" vbox>
+        <details>
+          <summary>How to use this tool:</summary>
+          <ul>
+            <li>Refresh the active tab or a tab that you want to grab media resources (image, audio or video) from.</li>
+            <li>If there is a video source in the tab, it needs to be streamed for the media source to be grabbed.</li>
+            <li>When the intended resource is grabbed, make sure to press the "Pause" button to release network observer and prevent cluttering of this window with new resources.</li>
+            <li class="chrome">Detection of YouTube resources is locked because of restrictions of the Chrome Store.</li>
+            <li>To download full-size images, use <a href="https://add0n.com/save-images.html" target="_blank">Download all Images</a> extension.</li>
+            <li>To convert media files to different formats, use <a href="https://add0n.com/media-converter.html" target="_blank">Media Converter</a> extension.</li>
+            <li>To download HLS (Live Streams or M3U8), use <a href="https://add0n.com/hls-downloader.html" target="_blank">Live Stream Downloader</a> extension.</li>
+          </ul>
+        </details>
+      </div>
+      <div hbox pack="center" align="center">
+        <div id="stats">0/0</div>
+        <img alt="" src="working.gif">
+      </div>
+    </div>
+    <div style="display: none;">
+      <table id="tr">
+        <tbody>
+          <tr>
+            <td><input type="checkbox"></td>
+            <td></td>
+            <td></td>
+            <td>-</td>
+            <td></td>
+            <td>-</td>
+            <td>-</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <div id="links-head">
+      <table>
+        <colgroup>
+          <col width="30">
+          <col width="100">
+          <col width="100">
+          <col>
+          <col width="100">
+          <col width="10%">
+          <col width="80">
+        </colgroup>
+        <thead>
+          <th data-cmd="toggle-select">▾</th>
+          <th data-cmd="toggle-filter"><span>Type (all)</span> ▾</th>
+          <th data-cmd="toggle-size"><span>Size (all)</span> ▾</th>
+          <th>Link</th>
+          <th>Timestamp</th>
+          <th>Filename</th>
+          <th>Source</th>
+        </thead>
+      </table>
+      <ul type="select">
+        <li data-cmd="select-all">Select all</li>
+        <li data-cmd="select-image">Select all images</li>
+        <li data-cmd="select-video">Select all videos</li>
+        <li data-cmd="select-audio">Select all audios</li>
+        <li data-cmd="select-application">Select all applications</li>
+        <li data-cmd="select-none">Select none</li>
+      </ul>
+      <ul type="filter">
+        <li data-cmd="filter-all">Type (all)</li>
+        <li data-cmd="filter-media">Type (media)</li>
+        <li data-cmd="filter-video">Type (video)</li>
+        <li data-cmd="filter-audio">Type (audio)</li>
+        <li data-cmd="filter-image">Type (image)</li>
+        <li data-cmd="filter-application">Type (application)</li>
+      </ul>
+      <ul type="size">
+        <li data-cmd="size-all">Size (all)</li>
+        <li data-cmd="size-100k">Size (>100K)</li>
+        <li data-cmd="size-1m">Size (>1M)</li>
+        <li data-cmd="size-10m">Size (>10M)</li>
+      </ul>
+    </div>
+    <div id="links">
+      <table>
+        <colgroup>
+          <col width="30">
+          <col width="100">
+          <col width="100">
+          <col>
+          <col width="100">
+          <col width="10%">
+          <col width="80">
+        </colgroup>
+        <tbody>
+        </tbody>
+      </table>
+    </div>
+    <div id="filters" hbox align="center">
+      <label><input type="checkbox" value="all_files"><span class="icon-"></span> All files</label>
+      <label><input type="checkbox" value="applications"><span class="icon-"></span> Application</label>
+      <label><input type="checkbox" value="images"><span class="icon-"></span> Image</label>
+      <label><input type="checkbox" value="videos"><span class="icon-"></span> Video</label>
+      <label><input type="checkbox" value="audios"><span class="icon-"></span> Audio</label>
+      <label><input type="checkbox" value="archives"><span class="icon-"></span> Archive</label>
+      <label><input type="checkbox" value="documents"><span class="icon-"></span> Document</label>
+      <label><input type="checkbox" value="tab"><span class="icon-"></span> Tab</label>
+      <input type="text" placeholder="RegExp matching">
+    </div>
+    <div id="tools">
+      <input data-cmd="pause" type="button" value="Pause">
+      <input data-cmd="download-browser" type="button" disabled=true value="Download" title="Download with the biult-in download manager">
+      <input data-cmd="copy-links" type="button" disabled=true value="Copy Links" title="Copy links of all selected items">
+      <input data-cmd="clear" type="button" value="Clear List">
+    </div>
+    <div id="external">
+      <div id="external-container">
+        <details vbox flex="1">
+          <summary>External Executable:</summary>
+          <div hbox align="center">
+            <select value=''>
+              <option value="idm">IDM</option>
+              <option value="fdm">FDM</option>
+              <option value="wget">Wget</option>
+              <option value="cus1">Custom Command 1</option>
+              <option value="cus2">Custom Command 2</option>
+              <option value="cus3">Custom Command 3</option>
+            </select>
+            <label hbox align=center><input type="checkbox" id="quotes"> Surround arguments with quote characters</label>
+          </div>
+          <div hbox>
+            <input type="text" id="external-path" placeholder="path to the external executable">
+            <input type="text" id="external-args" placeholder="list of arguments" style="flex: 2">
+          </div>
+          <div id="external-actions" hbox pack=end title="Supported Keywords: [HREF], [HOSTNAME], [PATHNAME], [HASH], [PROTOCOL], [SELECTIONTEXT], [DOWNLOADED_PATH], [FILENAME], [REFERRER]">
+            <input type="button" value="Save" data-cmd="save" disabled=true title="Remeber the path and argument list changes">
+            <input type="button" value="Run" data-cmd="run" disabled=true title='Run external executable.&#013;Note: this requires "External Application Button" extension to be available.'>
+          </div>
+        </details>
+      </div>
+    </div>
+    <script src="elements.js"></script>
+    <script src="persist.js"></script>
+    <script src="index.js"></script>
+    <script src="external.js"></script>
+  </body>
+</html>
