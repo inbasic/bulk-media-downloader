@@ -1,14 +1,16 @@
-/* Copyright (C) 2014-2022 InBasic
+/* Copyright (C) 2014-2023 InBasic
  *
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
- * Home: http://add0n.com/media-tools.html
- * GitHub: https://github.com/inbasic/bulk-media-downloader/ */
+ * Home: https://webextension.org/listing/bulk-media-downloader.html
+ * GitHub: https://github.com/inbasic/bulk-media-downloader/
+ */
 
 'use strict';
 
+// eslint-disable-next-line no-var
 var $ = {
   stats: document.getElementById('stats'),
   head: document.getElementById('links-head'),
@@ -18,7 +20,7 @@ var $ = {
   tbody: document.querySelector('#links tbody'),
   filter: document.querySelector('[data-cmd="toggle-filter"] span'),
   size: document.querySelector('[data-cmd="toggle-size"] span'),
-  pause: document.querySelector('[data-cmd="pause"]'),
+  pause: document.querySelector('[data-cmd="pause"]')
 };
 
 $.header = {

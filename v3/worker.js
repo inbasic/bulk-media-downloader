@@ -1,11 +1,12 @@
-/* Copyright (C) 2014-2022 InBasic
+/* Copyright (C) 2014-2023 InBasic
  *
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
- * Home: http://add0n.com/media-tools.html
- * GitHub: https://github.com/inbasic/bulk-media-downloader/ */
+ * Home: https://webextension.org/listing/bulk-media-downloader.html
+ * GitHub: https://github.com/inbasic/bulk-media-downloader/
+ */
 
 'use strict';
 
@@ -73,14 +74,12 @@ chrome.runtime.onMessage.addListener((request, sender) => {
   chrome.runtime.onStartup.addListener(once);
 }
 chrome.contextMenus.onClicked.addListener(info => {
-  if (info.menuItemId === 'save-images') {
-    chrome.tabs.create({
-      url: 'https://add0n.com/save-images.html'
+  if (info.menuItemId === 'save-images' || info.menuItemId === 'hls-downloader') {
+    const {href} = Object.assign(new URL(chrome.runtime.getManifest().homepage_url), {
+      pathname: 'listing/' + info.menuItemId + '.html'
     });
-  }
-  else if (info.menuItemId === 'hls-downloader') {
     chrome.tabs.create({
-      url: 'https://add0n.com/hls-downloader.html'
+      url: href
     });
   }
 });
