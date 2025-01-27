@@ -1,7 +1,7 @@
 {
   "name": "Bulk Media Downloader",
   "description": "Grab and download media (image and video) sources by monitoring network (like FlashGot)",
-  "version": "0.3.1",
+  "version": "0.3.2",
   "manifest_version": 3,
   "permissions": [
     "storage",
@@ -14,7 +14,8 @@
     "*://*/*"
   ],
   "background": {
-    "service_worker": "worker.js"
+    "service_worker": "worker.js",
+    "scripts": ["worker.js"]
   },
   "action": {},
   "homepage_url": "https://webextension.org/listing/bulk-media-downloader.html",
@@ -33,5 +34,11 @@
   }],
   "commands": {
     "_execute_action": {}
+  },
+  "browser_specific_settings": {
+    "gecko": {
+      "id": "{72b2e02b-3a71-4895-886c-fd12ebe36ba3}",
+      "strict_min_version": "128.0"
+    }
   }
 }

@@ -1,4 +1,4 @@
-/* Copyright (C) 2014-2023 InBasic
+/* Copyright (C) 2014-2025 InBasic
  *
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
@@ -11,9 +11,10 @@
 /* global persist, visible, $ */
 'use strict';
 {
-  const os = navigator.userAgent.indexOf('Firefox') !== -1 ? 'firefox' : (
-    navigator.userAgent.indexOf('OPR') === -1 ? (
-      navigator.userAgent.indexOf('Edg/') === -1 ? 'chrome' : 'edge') : 'opera'
+  const os = navigator.userAgent.includes('Firefox') ? 'firefox' : (
+    navigator.userAgent.includes('OPR') ? 'opera' : (
+      navigator.userAgent.includes('Edg/') ? 'edge' : 'chrome'
+    )
   );
   const id = {
     chrome: 'bifmfjgpgndemajpeeoiopbeilbaifdo',

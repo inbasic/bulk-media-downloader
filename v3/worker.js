@@ -1,4 +1,4 @@
-/* Copyright (C) 2014-2023 InBasic
+/* Copyright (C) 2014-2025 InBasic
  *
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
@@ -10,37 +10,33 @@
 
 'use strict';
 
-chrome.action.onClicked.addListener(tab => {
-  chrome.runtime.sendMessage({
+chrome.action.onClicked.addListener(async tab => {
+  const resp = await chrome.runtime.sendMessage({
     cmd: 'bring-to-front'
-  }, async resp => {
-    chrome.runtime.lastError;
-    if (resp === true) {
-      chrome.tabs.sendMessage(tab.id, {
-        cmd: 'update-id',
-        id: tab.id
-      });
-    }
-    else {
-      const win = await chrome.windows.getCurrent();
+  }).catch(() => {});
 
-      chrome.storage.local.get({
-        width: 800,
-        height: 600,
-        left: win.left + Math.round((win.width - 800) / 2),
-        top: win.top + Math.round((win.height - 600) / 2)
-      }, prefs => {
-        chrome.windows.create({
-          url: 'data/window/index.html?tabId=' + tab.id,
-          width: prefs.width,
-          height: prefs.height,
-          left: prefs.left,
-          top: prefs.top,
-          type: 'popup'
-        });
-      });
-    }
-  });
+  if (resp === true) {
+    chrome.tabs.sendMessage(tab.id, {
+      cmd: 'update-id',
+      id: tab.id
+    });
+  }
+  else {
+    const win = await chrome.windows.getCurrent();
+
+    const prefs = await chrome.storage.local.get({
+      width: 800,
+      height: 600
+    });
+    chrome.windows.create({
+      url: 'data/window/index.html?tabId=' + tab.id,
+      width: prefs.width,
+      height: prefs.height,
+      left: win.left + Math.round((win.width - prefs.width) / 2),
+      top: win.top + Math.round((win.height - prefs.height) / 2),
+      type: 'popup'
+    });
+  }
 });
 
 chrome.runtime.onMessage.addListener((request, sender) => {
@@ -57,6 +53,11 @@ chrome.runtime.onMessage.addListener((request, sender) => {
 // Image Downloader (Open modified @belaviyo's image downloader UI [with developer's permission])
 {
   const once = () => {
+    if (once.done) {
+      return;
+    }
+    once.done = true;
+
     chrome.contextMenus.create({
       title: 'Download all Images',
       contexts: ['action'],
@@ -88,8 +89,7 @@ chrome.contextMenus.onClicked.addListener(info => {
 {
   const {management, runtime: {onInstalled, setUninstallURL, getManifest}, storage, tabs} = chrome;
   if (navigator.webdriver !== true) {
-    const page = getManifest().homepage_url;
-    const {name, version} = getManifest();
+    const {homepage_url: page, name, version} = getManifest();
     onInstalled.addListener(({reason, previousVersion}) => {
       management.getSelf(({installType}) => installType === 'normal' && storage.local.get({
         'faqs': true,
@@ -98,7 +98,7 @@ chrome.contextMenus.onClicked.addListener(info => {
         if (reason === 'install' || (prefs.faqs && reason === 'update')) {
           const doUpdate = (Date.now() - prefs['last-update']) / 1000 / 60 / 60 / 24 > 45;
           if (doUpdate && previousVersion !== version) {
-            tabs.query({active: true, currentWindow: true}, tbs => tabs.create({
+            tabs.query({active: true, lastFocusedWindow: true}, tbs => tabs.create({
               url: page + '?version=' + version + (previousVersion ? '&p=' + previousVersion : '') + '&type=' + reason,
               active: reason === 'install',
               ...(tbs && tbs.length && {index: tbs[0].index + 1})

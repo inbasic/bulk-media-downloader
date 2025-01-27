@@ -1,4 +1,4 @@
-/* Copyright (C) 2014-2023 InBasic
+/* Copyright (C) 2014-2025 InBasic
  *
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
@@ -11,8 +11,8 @@
 /* globals $, persist */
 'use strict';
 
-document.body.dataset.os = navigator.userAgent.indexOf('Firefox') !== -1 ? 'firefox' : (
-  navigator.userAgent.indexOf('OPR') === -1 ? 'chrome' : 'opera'
+document.body.dataset.os = navigator.userAgent.includes('Firefox') ? 'firefox' : (
+  navigator.userAgent.includes('OPR') ? 'opera' : 'chrome'
 );
 if (window.location.search) {
   document.body.dataset.tabId = window.location.search.replace('?tabId=', '');
@@ -203,15 +203,19 @@ Object.defineProperty(config, 'size', {
   }
 });
 
-function notify(message) {
-  chrome.storage.local.get({
+async function notify(message) {
+  const prefs = await chrome.storage.local.get({
     notify: true
-  }, prefs => prefs.notify && chrome.notifications.create(null, {
-    type: 'basic',
-    iconUrl: '/data/icons/48.png',
-    title: 'Bulk Media Downloader',
-    message
-  }));
+  });
+  if (prefs.notify) {
+    const id = await chrome.notifications.create({
+      type: 'basic',
+      iconUrl: '/data/icons/48.png',
+      title: 'Bulk Media Downloader',
+      message
+    });
+    setTimeout(chrome.notifications.clear, 3000, id);
+  }
 }
 function visible(e) {
   return Boolean(e.offsetWidth || e.offsetHeight || e.getClientRects().length);
@@ -449,17 +453,15 @@ chrome.storage.local.get({
 });
 
 // resize
-window.addEventListener('resize', () => {
+addEventListener('resize', () => {
   chrome.storage.local.set({
-    left: window.screenX,
-    top: window.screenY,
     width: Math.max(window.outerWidth, 100),
     height: Math.max(window.outerHeight, 100)
   });
 });
 
 // unload
-window.addEventListener('beforeunload', () => {
+addEventListener('beforeunload', () => {
   monitor.deactivate();
 });
 
