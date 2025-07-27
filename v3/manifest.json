@@ -28,10 +28,6 @@
     "256": "/data/icons/256.png",
     "512": "/data/icons/512.png"
   },
-  "web_accessible_resources": [{
-    "resources": ["/data/inject/index.html"],
-    "matches": ["*://*/*"]
-  }],
   "commands": {
     "_execute_action": {}
   },
