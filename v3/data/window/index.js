@@ -1,4 +1,4 @@
-/* Copyright (C) 2014-2025 InBasic
+/* Copyright (C) 2014-2026 InBasic
  *
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
@@ -14,8 +14,11 @@
 document.body.dataset.os = navigator.userAgent.includes('Firefox') ? 'firefox' : (
   navigator.userAgent.includes('OPR') ? 'opera' : 'chrome'
 );
-if (window.location.search) {
-  document.body.dataset.tabId = window.location.search.replace('?tabId=', '');
+
+const args = new URLSearchParams(location.search);
+
+if (args.has('tabId')) {
+  document.body.dataset.tabId = args.get('tabId');
 }
 
 const stats = {
